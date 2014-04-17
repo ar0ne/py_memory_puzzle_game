@@ -7,42 +7,100 @@ e-mail: ja_he@mail.ru
 
 import sys, pygame, random
 
+pygame.init()
+
 GRAY = (100, 100, 100)
 WHITE = (255, 255, 255)
 ORANGE = (255, 128, 0)
-CYAN = ( 120, 120, 255)
+FIOLET = ( 120, 120, 255)
 
 width = height = 70
 margin = 10
-N = 4
+N = 6
 FONTSIZE = 45
 FPS = 30 
+WINDOWIDTH = 0
+WINDOWHEIGHT = 0
 
+#
+# TODO: Add Timer for game loop
+#
 
-def Won(scr, N, size,font):
-    #if size == N*N:
-    if size == size:
-        pygame.draw.rect(scr, CYAN, [0, (N-1)*height/2, N*(width+margin)+margin , height*1.5])
+def Won(scr, N, size, font):
+    if size == N*N:
+        pygame.draw.rect(scr, FIOLET, [0, WINDOWHEIGHT/2 - (height+margin)/2, WINDOWIDTH , WINDOWHEIGHT/(N-1)])
         text = font.render("You are won!",True, ORANGE)
-        scr.blit(text, [(N-1)*(width+margin)/2, (N-1)*(height+margin)/2]) 
-                    
+        scr.blit(text, [margin, WINDOWHEIGHT/2 ])
+        pygame.display.update()
+        pygame.time.wait(1500)
+        Start_menu()    
+        return
+        
+
+def Start_menu():
+    
+    global N, FPS, FONTSIZE
+    
+    clock = pygame.time.Clock() 
+    font = pygame.font.Font(None, FONTSIZE)
+    pygame.display.set_caption("Memory puzzle by ar[]ne")
+    screen = pygame.display.set_mode([500, 250])
+    screen.fill(GRAY)
+  
+    idx = [4, 6, 8]
+    pos_squares = []
+    
+    for i in range(len(idx)):       # add position of buttons to list
+        pos_squares.append([i * 2 * width + width, height/2 , width, height])
+        pygame.draw.rect(screen, ORANGE,  pos_squares[i])
+        pos_squares[i][2] += pos_squares[i][0]      # get right corner
+        pos_squares[i][3] += pos_squares[i][1]      # get botttom
+        text = font.render(str(idx[i]) + 'x' + str(idx[i]),True, WHITE)
+        screen.blit(text, [i * 2 * width+width*1.15, height ]) 
+        
+        
+    text = font.render("Choose size of the field" ,True, WHITE)
+    screen.blit(text, [width, height*2 ]) 
+        
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+                
+            if event.type == pygame.MOUSEBUTTONDOWN:        
+                pos = pygame.mouse.get_pos()
+                for i in range(len(pos_squares)):       # if user click in the button-square
+                    if pos_squares[i][0] < pos[0] < pos_squares[i][2]  and pos_squares[i][1] < pos[1] < pos_squares[i][3]:
+                        N = idx[i]      # set global SIZE of field
+                        Game_main()
+                        return
+            
+        pygame.display.flip()
+        clock.tick(FPS)
+
 
 
 def Game_main():
-    pygame.init()
-    
-    pygame.display.set_caption("Memory puzzle")
-    SIZE = [(width+margin)*N + margin, (height+margin)*N + margin]
-    screen = pygame.display.set_mode(SIZE)
+    global WINDOWIDTH, WINDOWHEIGHT, FONTSIZE, FPS
+       
+    clock = pygame.time.Clock() 
+    font = pygame.font.Font(None, FONTSIZE) 
+    pygame.display.set_caption("Memory puzzle by ar[]ne")
+   
+    WINDOWIDTH = (width+margin)*N + margin
+    WINDOWHEIGHT = (height+margin)*N + margin
 
-    clock = pygame.time.Clock()
+    screen = pygame.display.set_mode([WINDOWIDTH, WINDOWHEIGHT] )
     
-    font = pygame.font.Font(None, FONTSIZE)
-     
-    table = [[0 for i in range(N)] for i in range(N)]      # init list of pole NxN 
+    table = [[0 for i in range(N)] for i in range(N)]      # init list of field NxN 
     
+    x = y = -1
+    last = []
+    opened = []
     secret_list = [] 
     it = 0
+    
     while it < N*N/2:
         i = random.randrange(33, 126)       # ascii 
         if not chr(i) in secret_list:
@@ -59,17 +117,14 @@ def Game_main():
                 index = random.randrange(len(secret_list))
                 table[i][j] = secret_list[index]
                 secret_list.pop(index)
-          
-    
+        
+              
     screen.fill(GRAY)
     
     for i in range(N):
         for j in range(N):
             pygame.draw.rect(screen, ORANGE, [j * (width + margin) + margin, i * (height + margin) + margin, width, height])
  
-    x = y = 0
-    last = []
-    opened = []
 
     while True:
         for event in pygame.event.get():
@@ -104,7 +159,8 @@ def Game_main():
                                 opened.append(last[0])    # add to list of opened cells
                                 opened.append([y,x])
                             last[0] = [y,x]
-                        
+                        else:       # if not a first and equal last choose
+                            pygame.draw.rect(screen, ORANGE, [x * (width + margin) + margin, y * (height + margin) + margin, width, height])
                     else:       # if don't click early
                         last.append([y, x])
                         pygame.draw.rect(screen, ORANGE, [x * (width + margin) + margin, y * (height + margin) + margin, width, height])
@@ -114,6 +170,7 @@ def Game_main():
         clock.tick(FPS)
 
 #########################################
-if __name__ == '__main__':
-    Game_main()
+if __name__ == '__main__':  
+    Start_menu()
+        
     
