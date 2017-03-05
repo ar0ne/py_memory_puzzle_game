@@ -1,5 +1,5 @@
-# Введение
+# About
 
-Примеры игровых ботов с использованием библиотеки OpenCV на простых играх на Python2.7 с использованной игровой библиотекой Pygame
+This is simple memory puzzle game. Written on Python with PyGame library.
 
-# Установка
+Have a fun!
