@@ -1,9 +1,4 @@
 #! /usr/bin/env python
-"""
-Memory puzzle 
-author: Serg Ar[]ne 
-e-mail: ja_he@mail.ru
-"""
 
 import sys, pygame, random
 
